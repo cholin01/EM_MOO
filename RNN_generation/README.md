@@ -32,9 +32,4 @@ run the generate() or valid_generate() in launcher_of_clm.py
 
 ```
 
-4.Score
-
-```
-run the score() in launcher_of_sm.py
-```
 
