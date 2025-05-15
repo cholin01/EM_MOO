@@ -54,7 +54,10 @@ def initialize_datasets(datadir, dataset, subset=None, splits=None):
                'test': -1, 'valid': -1}
 
     # Download and process dataset. Returns datafiles.
-    datafiles = prepare_dataset(datadir, dataset, subset, splits)
+    # datafiles = prepare_dataset(datadir, dataset, subset, splits)
+    datafiles = {'train': 'Q_model/data/778Q/train.npz',
+                 'valid': 'Q_model/data/778Q/valid.npz',
+                 'test': 'Q_model/data/778Q/test.npz'}
 
     # Load downloaded/processed datasets
     datasets = {}

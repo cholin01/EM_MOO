@@ -1,84 +1,57 @@
-# Energy-Motivated Equivariant Pretraining for 3D Molecular Graphs (AAAI 2023)
 
-Code for Energy-Motivated Equivariant Pretraining for 3D Molecular Graphs (3D-EMGP).
+# Q_Model: Energy-Motivated Equivariant Pretraining for 3D Molecular Graphs (AAAI 2023)
+
+The model for the prediction of Q values is based on the 3D-EMGP model.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/3D-EMGP/blob/main/LICENSE)   [**[Paper]**](https://arxiv.org/pdf/2207.08824.pdf)
 
 ![Overview](assets/overview.png "Overview")
 
-## Dependencies
+## Environment
 
+### create a new conda environment
+
+``` shell
+conda create -n 3DGNN python=3.8
+conda activate 3DGNN
 ```
-python==3.7.10
-torch==1.7.0
-torch-geometric==1.6.3
+### Requirements
 ```
-
-## Data Preparation
-
-The raw data of GEOM can be downloaded from [the official website](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/JNGTDF).
-
-One can download the dataset and unpack it into the `dataset` folder as follows:
-
-```
-|-- datasets
-    |-- GEOM
-	|-- rdkit_folder
-            |-- drugs
-            |-- qm9
-            |-- summary_drugs.json
-            |-- summary_qm9.json
-```
-
-To preprocess the GEOM data for pretraining:
-
-```
-python data/geom.py --base_path datasets/GEOM/rdkit_folder/ --datasets qm9 --output blocks --val_num 500 --conf_num 10 --block_size 100000 --test_smiles data/filter_smiles.txt
+ase==3.22.1
+easydict==1.9
+matplotlib==3.6.2
+networkx==2.8.6
+numpy==1.22.4
+pandas==1.5.0
+PyYAML==6.0.2
+rdkit_pypi==2022.9.5
+scikit_learn==1.1.1
+scipy==1.7.1
+torch_cluster==1.6.0
+torch_geometric==2.0.4
+torch_scatter==2.0.9
+torch_sparse==0.6.14
+tqdm==4.64.1
 ```
 
-Generated data blocks are listed as follows:
+You could simply run
 
 ```
-|-- datasets
-    |-- GEOM
-        |-- rdkit_folder
-        |-- blocks
-            |-- summary.json
-            |-- val_block.pkl
-            |-- train_block_i.pkl
+pip install -r requirements.txt
 ```
 
-## Pretraining
+to install other packages.
 
-3D-EMGP pretraining can be conducted via the following commands.
+## Datasets
 
-```shell
-export CUDA_VISIBLE_DEVICES=0
-python -u script/pretrain_3dmgp.py --config_path config/pretrain_3dmgp.yml
-```
+Our 778 energetic molecules with their Q values and detailed train, valid, test data are provided in the folder ``` Q_model/data/778Q```.
 
-One can also pretrain the model in a multi-GPU mode.
-
-```shell
-export CUDA_VISIBLE_DEVICES=0,1,2,3
-python -m torch.distributed.launch --nproc_per_node=4 --master_port <port> script/pretrain_3dmgp.py --config_path config/pretrain_3dmgp.yml
-```
-
-The pretrained model will be saved in `checkpoints/pretrain/3dmgp`, which can be modified in `config/pretrain_3dmgp.yml`
-
-One can also pretrain the 3D model via the re-implemented baseline methods via the following commands. Take AttrMask as an example:
-
-```shell
-export CUDA_VISIBLE_DEVICES=0
-python -u script/baselines/train_attr_mask.py --config_path config/pretrain_baselines.yml
-```
-
-## Finetuning
+## Finetuning on QM9 and Prediction
 
 Finetuning on QM9 :
 
 ```
-python -u script/finetune_qm9.py --config_path config/finetune_qm9.yml --restore_path <pretrained_checkpoint> --property <property>
+python -u script/finetune_mdn.py --config_path config/finetune_qm9.yml --restore_path <pretrained_checkpoint> --property <property>
 ```
 
 The property should be chosen from
@@ -86,31 +59,12 @@ The property should be chosen from
 ```
 alpha, gap, homo, lumo, mu, Cv, G, H, r2, U, U0, zpve
 ```
-
-Finetuning on MD17 :
-
-```
-python -u script/finetune_md17.py --config_path config/finetune_md17.yml --restore_path <pretrained_checkpoint> --molecule <molecule> --model_name <molecule>
-```
-
-The molecule should be chosen from
-
-```
-aspirin
-benzene
-ethanol
-malonaldehyde
-naphthalene
-salicylic_acid
-toluene
-uracil
-```
-
 Note that the finetuning datasets will be automatically downloaded and preprocessed on the first run.
 
-## Citation
+If you want to fine-tune the pre-trained 3D-GNN model with other property, the ```Q_model/script/trans.py``` can be used to generate molecular file with its label which as the input.
 
-Please consider citing our work if you find it helpful:
+
+## Citation
 
 ```
 @misc{jiao2022energy,
@@ -121,4 +75,3 @@ Please consider citing our work if you find it helpful:
   year={2022}
 }
 ```
-

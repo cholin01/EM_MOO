@@ -10,6 +10,7 @@ import tarfile
 from torch.nn.utils.rnn import pad_sequence
 import numpy as np
 
+
 def process_sdf_e4(datafile):
     """
     Read xyz file and return a molecular dict with number of atoms, energy, forces, coordinates and atom-type for the gdb9 dataset.
@@ -117,7 +118,7 @@ def read_coors(datafile):
     # lines下标从0开始
         lines = f.readlines()
     for i, row_line in enumerate(lines):
-        row_line = row_line.decode('utf-8').replace("\n", "")  # 正则匹配前，python3需要加上此代码
+        row_line = row_line.decode('utf-8').replace("\n", "")
         if i == 3:
             number = int(lines[i].split()[0])
             start_line = i + 1
@@ -133,40 +134,44 @@ def read_coors(datafile):
             ca = np.array(lines[i])
             cb[j] = ca
             j = j + 1
-        cc = np.average(cb, axis=0)  # 按列求均值
+        cc = np.average(cb, axis=0)
         for i in range(0, 3):
-            cb[:, i] = cb[:, i] - cc[i]  # 坐标中心化处理
+            cb[:, i] = cb[:, i] - cc[i]
         cb = torch.tensor(cb)
         return cb
 
 def read_ddec_charge(datafile):
     resp_charges = []
     T = True
+    ca = None
     with open(datafile, "rb") as f:
-        # lines下标从0开始
         lines = f.readlines()
     for i, row_line in enumerate(lines):
-        row_line = row_line.decode('utf-8').replace("\n", "")  # 正则匹配前，python3需要加上此代码
+        row_line = row_line.decode('utf-8').replace("\n", "")
         if row_line == '>  <Label>  (1) ':
-            line = lines[i+1].decode('utf-8').replace("\n", "")
+            line = lines[i + 1].decode('utf-8').replace("\n", "")
             ca = np.array(float(line))
+
+    if ca is None:
+        raise ValueError(f"Charge value not found in {datafile}")
+
     cb = torch.tensor(ca)
     return cb
 
-def copyFile(fileDir, save_dir):
-    train_rate = 0.8
-    valid_rate = 0.2
 
-    image_list = os.listdir(fileDir)  # 获取图片的原始路径,列出子文件夹
+def copyFile(fileDir, save_dir):
+    train_rate = 1
+    valid_rate = 0.0
+
+    image_list = os.listdir(fileDir)
     image_number = len(image_list)
     train_number = int(image_number * train_rate)
     valid_number = int(image_number * valid_rate)
-    train_sample = random.sample(image_list, train_number)  # 从image_list中随机获取0.8比例的图像.
+    train_sample = random.sample(image_list, train_number)
     valid_sample = random.sample(list(set(image_list) - set(train_sample)), valid_number)
     test_sample = list(set(image_list) - set(train_sample) - set(valid_sample))
     sample = [train_sample, valid_sample, test_sample]
 
-    # 复制图像到目标文件夹
     for k in range(len(save_dir)):
         # os.makedirs(save_dir[k])
         # for name in sample[k]:
@@ -177,7 +182,7 @@ def copyFile(fileDir, save_dir):
 
         for name in sample[k]:
             shutil.copy(os.path.join(fileDir, name),
-                        os.path.join(save_dir[k] + '/', name))  # 连接两个或更多的路径名组件
+                        os.path.join(save_dir[k] + '/', name))
 
 
 def convert(T):
@@ -232,7 +237,8 @@ def prepare_dataset(datadir, dataset, subset=None, splits=None, copy=True):
 
     # Names of splits, based upon keys if split dictionary exists, elsewise default to train/valid/test.
     split_names = splits.keys() if splits is not None else [
-        'train', 'valid']
+        'train', 'valid', 'test']
+
 
     # Assume one data file for each split
     data_splits = {split: os.path.join(
@@ -256,8 +262,8 @@ def prepare_dataset(datadir, dataset, subset=None, splits=None, copy=True):
 
     save_train_dir = data_splits['train']
     save_valid_dir = data_splits['valid']
-    # save_test_dir = data_splits['test']
-    save_dir = [save_train_dir, save_valid_dir]
+    save_test_dir = data_splits['test']
+    save_dir = [save_train_dir, save_valid_dir, save_test_dir]
     path = os.path.join(datadir, dataset)
     if copy == True:
         copyFile(path, save_dir)
@@ -280,12 +286,12 @@ def prepare_dataset(datadir, dataset, subset=None, splits=None, copy=True):
                 else:
                     test.append(process_sdf_e4(data_path))
     train = convert(train)
-    # test = convert(test)
+    test = convert(test)
     valid = convert(valid)
 
 
     e4_data['train'] = train
-    # e4_data['test'] = test
+    e4_data['test'] = test
     e4_data['valid'] = valid
 
     for split, data in e4_data.items():
