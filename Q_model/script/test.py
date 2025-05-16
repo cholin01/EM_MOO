@@ -327,11 +327,9 @@ def train(epoch, loader, config, partition='test', loss_type='mdn'):
 
 if __name__ == "__main__":
     res = {'epochs': [], 'losess': [], 'best_val': 0, 'best_test': 0, 'best_epoch': 0}
-    # meann = torch.tensor(1268.1754, dtype=torch.float64)
-    # mad = torch.tensor(173.5947, dtype=torch.float64)
 
-    meann = torch.tensor(1400.5653, dtype=torch.float64)  #the meann and mad values in the training stage
-    mad = torch.tensor(146.3623, dtype=torch.float64)
+    meann = torch.tensor(1266.3319, dtype=torch.float64)  #the meann and mad values in the training stage
+    mad = torch.tensor(175.0977, dtype=torch.float64)
 
     test_param = {'rmse': [], 'r2': [], 'mae': []}
     all_test_loss = []
