@@ -2,6 +2,8 @@
 
 This is the code for the paper "Ab novo multi-objective generation framework for energetic materials with trading off energy and stability". Energetic Materials (EMs) play important roles in military, civilian and aerospace fields. Energy and stability are two most important but contradictory properties in practical application, thus leading to a difficult challenge in developing new EMs with high comprehensive performance. Here, we propose an effective multi-objective generation framework by integrating a deep learning generator, machine learning prediction models, Pareto front optimization and quantum mechanics (QM) validation. Our design framework includes three main steps: (i) Molecule generation: RNN coupled with transfer learning is exploited to generate a new massive EMs search space. (ii) Properties prediction: development of ML models that accurately predict the relationship between molecular structure and Q and BDE values. (iii) Multi-objective optimization: Two-Dimensional Improved Probability-based (2D P[I]) Efficient Global Optimization method is exploited to select EMs with trading-off energy and stability based on the predicted values of ML models.
 
+DOI: 10.1038/s41524-025-01845-6
+
 ![Fig 1](https://github.com/user-attachments/assets/0448d946-ae57-485d-9855-cfc5e45c4f71)
 
 ## Guide for using the code
